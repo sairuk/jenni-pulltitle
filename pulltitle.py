@@ -25,6 +25,8 @@ except ImportError:
 
 debug = False
 conf = os.path.join(os.path.expanduser('~/.jenni'),'pulltitle.conf')
+urlpattern = '[a-zA-Z0-9].+([a-zA-Z0-9]+\.).+'
+
 
 def buildconfig():
     with open(conf,'w') as f:
@@ -51,7 +53,6 @@ def pulltitle(jenni, input):
         user_agent = config.get('options','user_agent')
         channels = config.get('options','channels')
         whitelist = config.get('options','whitelist')
-        #debug = config.getbooleen('options','debug')
     except:
         jenni.say("Check configuration file")
         return
@@ -68,11 +69,12 @@ def pulltitle(jenni, input):
             # loop through input list
             for item in inputspl:
                 outconsole(item)
-                outconsole(os.path.splitext(item)[-1] )
-                if item.startswith('http') and (os.path.splitext(item)[-1] in whitelist or os.path.splitext(item)[-1] == '/'):
+                outconsole(os.path.splitext(item)[-1])
+                if item:
                     url = item
                     outconsole(url)
-
+                    if not item.startswith('http'):
+                        url = "https://%s" % url
                     # reformat url
                     pu = urllib2.urlparse.urlparse(url)
                     topurl = "%s://%s" % (pu.scheme, pu.hostname)
@@ -127,8 +129,7 @@ def pulltitle(jenni, input):
             jenni.say("%s: still processing your crap, wait until we are done" % input.nick)
 
 
-#pulltitle.commands = ["pulltitle"]
-pulltitle.rule = '.*(http|https)(:\/\S+).*'
+pulltitle.rule = urlpattern
 pulltitle.priority = 'high'
 pulltitle.thread = False
     
