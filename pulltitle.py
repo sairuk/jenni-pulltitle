@@ -23,10 +23,9 @@ except ImportError:
 
 
 
-debug = False
+debug = True
 conf = os.path.join(os.path.expanduser('~/.jenni'),'pulltitle.conf')
-urlpattern = '[a-zA-Z0-9].+([a-zA-Z0-9]+\.).+'
-
+urlpattern = '.*[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+'
 
 def buildconfig():
     with open(conf,'w') as f:
@@ -72,12 +71,19 @@ def pulltitle(jenni, input):
                 outconsole(os.path.splitext(item)[-1])
                 if item:
                     url = item
+                    urlstr = item.split(' ')
+                    outconsole(urlstr)
                     outconsole(url)
-                    if not item.startswith('http'):
-                        url = "https://%s" % url
                     # reformat url
                     pu = urllib2.urlparse.urlparse(url)
-                    topurl = "%s://%s" % (pu.scheme, pu.hostname)
+                    urlscheme = pu.scheme
+                    urlhostname = pu.netloc
+                    if pu.scheme == '':
+                        urlscheme = 'https'
+                    url =  "%s://%s%s" % (urlscheme, urlhostname, pu.path)
+                    if pu.netloc == '':
+                        urlhostname = pu.path.split('/')[0]
+                    topurl = "%s://%s" % (urlscheme, urlhostname)
                     data = False
                     outconsole(topurl) 
                     try:
@@ -89,9 +95,11 @@ def pulltitle(jenni, input):
                         data = urllib2.urlopen(req)
                         outconsole(data)
                     except urllib2.URLError as e:
-                        jenni.say("Nope, sorry ... I can't find a title for %s" % url)
+                        #jenni.say("Nope, sorry ... I can't find a title for %s" % url)
+                        pass
                     except:
-                        jenni.say("Uhoh ... shit broke")
+                        #jenni.say("No")
+                        pass
                         return
 
                     if not data:
