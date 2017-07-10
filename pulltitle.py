@@ -122,12 +122,13 @@ def pulltitle(jenni, input):
                         if title:
                             title = title.getText().strip()
                         else:
-                            title = "No <title> found"
+                            title = False
                     else:
-                        title = "No data returned"
+                        title = False
 
                     # output to channel 
-                    jenni.say("[ %s ] - %s" % (title, topurl))
+                    if title:
+                        jenni.say("[ %s ] - %s" % (title, topurl))
 
                     # floop prevention
                     time.sleep(0.8)
